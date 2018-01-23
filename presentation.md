@@ -61,7 +61,7 @@ const observable = Rx.Observable.create(
 
 const finalObserver = {
     next: x => console.log(x),
-    error: err => console.error('something wrong occurred: ' + err),
+    error: err => console.error(':(' + err),
     complete: () => console.log('done'),
 };
 
@@ -88,7 +88,7 @@ const observable = Rx.Observable.create(
 
 const finalObserver = {
     next: x => console.log(x),
-    error: err => console.error('something wrong occurred: ' + err),
+    error: err => console.error(':(' + err),
     complete: () => console.log('done'),
 };
 
@@ -114,7 +114,7 @@ const observable = Rx.Observable.create(
 
 const finalObserver = {
     next: x => console.log(x),
-    error: err => console.error('something wrong occurred: ' + err),
+    error: err => console.error(':(' + err),
     complete: () => console.log('done'),
 };
 
