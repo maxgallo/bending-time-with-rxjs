@@ -12,6 +12,4 @@ things easy for testing.
 
 __QUESTIONS__
 
-- What is the value of the variable `expected` ?
-
 - What happen if I remove the `return` statement ?
