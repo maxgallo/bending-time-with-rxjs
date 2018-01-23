@@ -3,27 +3,32 @@ import Rx from 'rxjs/Rx';
 
 function getCountdownObservable(
     player$,
-    interval = 1000
+    interval = 1000,
+    scheduler
 ) {
     const maxTimeIsAvailable = event => event.maxTime && event.maxTime > 0;
     const getTimeToEnd = event => Math.floor(event.maxTime - event.currentTime);
 
     return player$
-        .sampleTime(interval)
+        .sampleTime(interval, scheduler)
         .filter(maxTimeIsAvailable)
         .map(getTimeToEnd);
 }
 
-function emitsArrayValuesAtInterval(arrayToEmit, interval) {
+function emitsArrayValuesAtInterval(
+    arrayToEmit,
+    interval,
+    scheduler
+) {
     return Rx.Observable
         .zip(
             Rx.Observable.from(arrayToEmit),
-            Rx.Observable.timer(0, interval),
+            Rx.Observable.timer(0, interval, scheduler),
             item => item
-        )
+        );
 }
 
-test('02 sample time', t => {
+test('03 sample time', t => {
     const values = [
         { currentTime: 0, maxTime: null},
         { currentTime: 0, maxTime: 10},
@@ -31,15 +36,27 @@ test('02 sample time', t => {
         { currentTime: 2, maxTime: 10},
     ];
 
-    const mockPlayer$ = emitsArrayValuesAtInterval(values, 1000);
+    const scheduler = new Rx.VirtualTimeScheduler();
 
-    const countdown$ = getCountdownObservable(mockPlayer$);
+    const mockPlayer$ = emitsArrayValuesAtInterval(
+        values,
+        1000,
+        scheduler
+    );
+
+    const countdown$ = getCountdownObservable(
+        mockPlayer$,
+        1000,
+        scheduler
+    );
 
     const expected = [10, 9];
 
-    return countdown$
-        .bufferCount(100)
-        .map(
+    countdown$
+        .bufferTime(10000, scheduler)
+        .subscribe(
             x => t.deepEqual(expected, x)
         );
+
+    scheduler.flush();
 });
