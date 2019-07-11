@@ -1,5 +1,5 @@
 # Bending Time with RxJS
-### __*#FullStack*____2019__
+### __*#FullStackconf*____2019__
 
 [.footer: @_maxgallo]
 
@@ -20,7 +20,7 @@ _twitter:_ @\_maxgallo
 # [fit] Agenda
 
 1. Using Schedulers
-2. Microtask and Macrotask
+2. Microtasks and Macrotasks
 3. Bending Time
 
 ---
@@ -100,7 +100,7 @@ __*USING*__ __ASYNC SCHEDULER__ __*The Output is*__ subscribe__,__ 1__,__ 2__,__
 
 ---
 
-LETS __RACE__ THEM  🏎 💨
+### LETS __RACE__ THEM  🏎 💨
 
 ---
 
@@ -134,21 +134,20 @@ __*The Output is*__ queue__,__ subscribe__,__ asap__,__ async
 
 # Scheduler Types
 
-| __*Type*__ | __*Execution*__ | 
+| __*Type*__ | __*Execution*__ |
 | --- | --- | --- |
 | queue | Sync |
-| asap | Async → microtask | 
+| asap | Async → microtask |
 | async | Async → macrotask |
-| animationFrame	 | before next repaint | 
 
 ---
 
 # [fit] __*Deep Dive*__ __Macrotasks__ __*&*__ __Microtasks__
 
-## Two Queues of the event loop 
+## Two Queues of the event loop
 
 ```
-MACROtasks     MICROtasks 
+MACROtasks     MICROtasks
 ----------     ----------
 setTimeout     process.nextTick
 setInterval    Promises
@@ -233,7 +232,7 @@ scheduler.flush();
 
 ---
 
-### 1. Event Loop has __*two queues*__, __Macrotasks__ and __Microtasks__  
+### 1. __*Event Loop*__ has two queues, __Macrotasks__ and __Microtasks__
 
 ---
 
