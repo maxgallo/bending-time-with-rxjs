@@ -1,143 +1,243 @@
 # Bending Time with RxJS
-### __*Schedulers*__ & __*Testing*__
+### __*#FullStack*____2019__
 
-
----
-
-# [fit] Schedulers
-
-Every time you use Rx, you're using a __**Scheduler**__. 
-
-If you don't set one, you're using a _Default Scheduler_
-
-
-> A Scheduler controls when a subscription starts and when notifications are published
-
----
-# [fit] A Scheduler is 
-
-
-- Data Structures _How To store_
-- Execution Context _Where & When to execute_
-- Virtual Clock
+[.footer: @_maxgallo]
 
 ---
 
-```javascript
-const observable = Rx.Observable.create(
-    proxyObserver => {
-      proxyObserver.next(2);
-      proxyObserver.next(3);
-      proxyObserver.next(4);
-      proxyObserver.complete();
-    }
-);
 
-const finalObserver = {
-    next: x => console.log(x),
-    error: err => console.error(':( ' + err),
-    complete: () => console.log('done'),
-};
+# Hi 👋🏻
+#[fit] I'm __Max__ Gallo
 
-console.log(1);
 
-observable.subscribe(finalObserver);
+_Principal Engineer_ @ DAZN
 
-console.log(5);
-```
-# _No Scheduler:_ What's the output?
+<br/>
+_twitter:_ @\_maxgallo
+_more:_ maxgallo.io
+
+---
+
+# [fit] Agenda
+
+1. Using Schedulers
+2. Microtask and Macrotask
+3. Bending Time
 
 ---
 
 ```javascript
-const observable = Rx.Observable.create(
-    proxyObserver => {
-      proxyObserver.next(2);
-      proxyObserver.next(3);
-      proxyObserver.next(4);
-      proxyObserver.complete();
+const { of } = require('rxjs');
+
+const observer = {
+    next(value) {
+        console.log(value);
     }
-);
+}
 
-const finalObserver = {
-    next: x => console.log(x),
-    error: err => console.error(':(' + err),
-    complete: () => console.log('done'),
-};
+of(1, 2, 3, 4)
+	.subscribe(observer);
 
-console.log(1);
-
-observable.subscribe(finalObserver);
-
-console.log(5);
+console.log('subscribe');
 ```
-# __**Output:**__ 1, 2, 3, 4, done, 5
+
+<br />
+
+__*USING*__ __NO SCHEDULER__ __*The Output is*__  1__,__ 2__,__ 3__,__ 4__,__ subscribe
 
 ---
 
-```javascript, [.highlight: 8]
-const observable = Rx.Observable.create(
-    proxyObserver => {
-      proxyObserver.next(2);
-      proxyObserver.next(3);
-      proxyObserver.next(4);
-      proxyObserver.complete();
-    }
-).observeOn(Rx.Scheduler.async);
+[.code-highlight: 1,9]
 
+```javascript
+const { of, scheduled, asapScheduler } = require('rxjs');
 
-const finalObserver = {
-    next: x => console.log(x),
-    error: err => console.error(':(' + err),
-    complete: () => console.log('done'),
-};
+const observer = {
+    next(value) {
+        console.log(value);
+    },
+}
 
-console.log(1);
+scheduled(of(1, 2, 3, 4), asapScheduler)
+  .subscribe(observer);
 
-observable.subscribe(finalObserver);
-
-console.log(5);
+console.log('subscribe');
 ```
-# _With Scheduler:_What's the output?
+<br />
+
+__*USING*__ __ASAP SCHEDULER__ __*The Output is*__ subscribe__,__ 1__,__ 2__,__ 3__,__ 4
+
 ---
 
-```javascript, [.highlight: 8]
-const observable = Rx.Observable.create(
-    proxyObserver => {
-      proxyObserver.next(2);
-      proxyObserver.next(3);
-      proxyObserver.next(4);
-      proxyObserver.complete();
-    }
-).observeOn(Rx.Scheduler.async);
+[.code-highlight: 1,9]
 
+```javascript
+const { of, scheduled, asyncScheduler } = require('rxjs');
 
-const finalObserver = {
-    next: x => console.log(x),
-    error: err => console.error(':(' + err),
-    complete: () => console.log('done'),
-};
+const observer = {
+    next(value) {
+        console.log(value);
+    },
+}
 
-console.log(1);
+scheduled(of(1, 2, 3, 4), asyncScheduler)
+  .subscribe(observer);
 
-observable.subscribe(finalObserver);
-
-console.log(5);
+console.log('subscribe');
 ```
-# __**Output:**__ 1, 5, 2, 3, 4, done
+<br />
+
+__*USING*__ __ASYNC SCHEDULER__ __*The Output is*__ subscribe__,__ 1__,__ 2__,__ 3__,__ 4
+
+---
+
+# recap 🤔
+
+|  |  |
+| :---: | :---: |
+| no scheduler | 1__,__ 2__,__ 3__,__ 4__,__ subscribe |
+| __asap Scheduler__ | subscribe__,__ 1__,__ 2__,__ 3__,__ 4 |
+| __async Scheduler__ | subscribe__,__ 1__,__ 2__,__ 3__,__ 4 |
+
+---
+
+LETS __RACE__ THEM  🏎 💨
+
+---
+
+```javascript
+const {
+    of, merge, scheduled,
+    asapScheduler,
+    asyncScheduler,
+    queueScheduler,
+} = require('rxjs');
+
+const observer = {
+    next(value) {
+        console.log(value);
+    },
+}
+
+const asapObs = scheduled(of('ASAP'), asapScheduler)
+const asyncObs = scheduled(of('ASYNC'), asyncScheduler)
+const queueObs = scheduled(of('QUEUE'), queueScheduler)
+
+merge(asapObs, asyncObs, queueObs)
+  .subscribe(observer);
+
+console.log('SUBSCRIBE');
+
+```
+__*The Output is*__ queue__,__ subscribe__,__ asap__,__ async
 
 ---
 
 # Scheduler Types
 
-
-| _Type_ | _Execution_ | _Under the hood_ |
+| __*Type*__ | __*Execution*__ | 
 | --- | --- | --- |
-| queue | Sync | `scheduler.schedule(task, delay)`|
-| asap | Async (micro) | `Promise.resolve().then(() => task)` |
-| async | Async (macro) | `id = setInterval(task, delay)` |
-| animationFrame	 | Async | `id = requestAnimationFrame(task)` |
+| queue | Sync |
+| asap | Async → microtask | 
+| async | Async → macrotask |
+| animationFrame	 | before next repaint | 
 
 ---
 
-# What about testing?
+# [fit] __*Deep Dive*__ __Macrotasks__ __*&*__ __Microtasks__
+
+## Two Queues of the event loop 
+
+```
+MACROtasks     MICROtasks 
+----------     ----------
+setTimeout     process.nextTick
+setInterval    Promises
+setImmediate   MutationObserver
+I/O tasks
+
+```
+
+---
+
+# [fit] __*Deep Dive*__ __Macrotasks__ __*&*__ __Microtasks__
+
+<br/>
+
+For every __macrotask__ removed from the __MACRO__-queue,
+all the __microtasks__ are removed from the __MICRO__-queue.
+
+
+*(how to remember: 👩‍✈️ 🛂 ✈️)*
+
+[.footer: to learn more whatch [https://www.youtube.com/watch?v=u1kqx6AenYw](https://www.youtube.com/watch?v=u1kqx6AenYw) and read [https://jakearchibald.com/2015/tasks-microtasks-queues-and-schedules/](https://jakearchibald.com/2015/tasks-microtasks-queues-and-schedules/)]
+
+---
+
+# [fit] Schedulers control the __order__ of event emission
+
+---
+
+```javascript
+const { interval } = require('rxjs');
+const { take } = require('rxjs/operators');
+
+const observer = {
+    next(value) {
+        console.log(value);
+    }
+}
+
+interval(1000)
+    .pipe(take(3600))
+    .subscribe(observer);
+```
+
+![right 130%](img/vts.gif)
+
+---
+
+[.code-highlight: 3,7,15, 19]
+
+```javascript
+const {
+	interval,
+	VirtualTimeScheduler
+} = require('rxjs');
+const { take } = require('rxjs/operators');
+
+const scheduler = new VirtualTimeScheduler();
+
+const observer = {
+    next(value) {
+        console.log(value);
+    }
+}
+
+interval(1000, scheduler)
+    .pipe(take(3600))
+    .subscribe(observer);
+
+scheduler.flush();
+
+```
+
+![right 100%](img/vts2.gif)
+
+---
+
+# [fit] Schedulers control the __speed__ of event emission
+
+---
+__*Takeaways*__
+
+
+# Schedulers control the __order__ and the __speed__ of event emission
+
+---
+<br/>
+# [fit] __*Thank you*__ 🙏
+
+# Bending time with __RxJS__
+
+@_maxgallo
