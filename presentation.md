@@ -14,7 +14,6 @@ _Principal Engineer_ @ DAZN
 
 <br/>
 _twitter:_ @\_maxgallo
-_more:_ maxgallo.io
 
 ---
 
@@ -229,15 +228,23 @@ scheduler.flush();
 # [fit] Schedulers control the __speed__ of event emission
 
 ---
-__*Takeaways*__
 
-
-# Schedulers control the __order__ and the __speed__ of event emission
+# Takeaways 📝
 
 ---
+
+### 1. Event Loop has __*two queues*__, __Macrotasks__ and __Microtasks__  
+
+---
+
+
+### 2. __*Schedulers*__ control the __order__ and the __speed__ of event emission
+
+---
+
 <br/>
-# [fit] __*Thank you*__ 🙏
+# [fit] Thank you 🙏
 
-# Bending time with __RxJS__
+__*[github.com/maxgallo/talk-bending-time-with-rxjs](https://github.com/maxgallo/talk-bending-time-with-rxjs)*__
 
-@_maxgallo
+__@_maxgallo__
